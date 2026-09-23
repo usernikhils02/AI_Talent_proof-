@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237c3aed'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Talent Proof — Official Skill Verification & Intern Hiring Platform" />
+    <title>Talent Proof | Verified Skills & Capstones</title>
+  </head>
+  <body>
+    <!-- Top Nav Header -->
+    <header class="navbar">
+      <div class="container nav-container">
+        <a href="#" class="brand" id="brand-home-link">
+          <div class="brand-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span>Talent Proof</span>
+        </a>
+
+        <!-- Portal Role Badge (displays only the user's logged-in role, NO toggle switcher) -->
+        <div id="nav-portal-badge" style="display: none;">
+          <!-- Dynamically shows only "Student Portal" or "HR Recruiter Portal" based on role -->
+        </div>
+
+        <!-- Current User Profile & Sign Out -->
+        <div id="nav-user-profile" class="user-badge">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Application Container -->
+    <main id="app-root">
+      <!-- Injected view content -->
+    </main>
+
+    <!-- Global Assessment Modal -->
+    <div id="assessment-modal-overlay" class="modal-overlay">
+      <div class="modal-window">
+        <div class="modal-header">
+          <div>
+            <h3 id="modal-assessment-title" style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Skill Assessment</h3>
+            <p id="modal-assessment-subtitle" style="font-size: 0.85rem; color: var(--text-muted);">Timed coding examination</p>
+          </div>
+          <button id="modal-close-btn" class="close-btn" aria-label="Close modal">&times;</button>
+        </div>
+        <div id="modal-assessment-body" class="modal-body">
+          <!-- Dynamic assessment question & options -->
+        </div>
+        <div id="modal-assessment-footer" class="modal-footer">
+          <!-- Dynamic actions -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Certificate Modal -->
+    <div id="certificate-modal-overlay" class="modal-overlay">
+      <div class="modal-window" style="max-width: 820px;">
+        <div class="modal-header">
+          <div>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--violet-primary);">Official Verified Credential</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Verifiable credential issued by Talent Proof</p>
+          </div>
+          <button id="cert-modal-close-btn" class="close-btn" aria-label="Close modal">&times;</button>
+        </div>
+        <div id="certificate-modal-body" class="modal-body">
+          <!-- Dynamic Certificate Frame -->
+        </div>
+        <div class="modal-footer">
+          <button id="btn-print-certificate" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+            Print / Save PDF
+          </button>
+          <button id="btn-close-cert" class="btn btn-primary">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Project Submission Modal -->
+    <div id="project-modal-overlay" class="modal-overlay">
+      <div class="modal-window">
+        <div class="modal-header">
+          <div>
+            <h3 id="project-modal-title" style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Upload Project Repo for Review</h3>
+            <p id="project-modal-subtitle" style="font-size: 0.85rem; color: var(--text-muted);">Submit code for evaluation & HR verification</p>
+          </div>
+          <button id="project-modal-close-btn" class="close-btn" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="project-submission-form">
+          <div class="modal-body">
+            <input type="hidden" id="proj-role-id" />
+            <input type="hidden" id="proj-role-title" />
+            
+            <div class="form-group">
+              <label class="form-label" for="proj-title">Project Title *</label>
+              <input type="text" id="proj-title" class="form-input" placeholder="e.g. Distributed Real-Time Kanban" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="proj-desc">Project Overview & Architecture *</label>
+              <textarea id="proj-desc" class="form-textarea" rows="4" placeholder="Briefly describe functionality, problem solved, and technical architecture..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="proj-tech">Tech Stack (comma separated) *</label>
+              <input type="text" id="proj-tech" class="form-input" placeholder="e.g. React, Node.js, Socket.io, Postgres" required />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label class="form-label" for="proj-github">GitHub Repository URL *</label>
+                <input type="url" id="proj-github" class="form-input" placeholder="https://github.com/username/project" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="proj-live">Live Demo Link (Optional)</label>
+                <input type="url" id="proj-live" class="form-input" placeholder="https://my-demo-app.com" />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="btn-cancel-project" class="btn btn-secondary">Cancel</button>
+            <button type="submit" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Submit Capstone to HR
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Global Candidate Dossier Modal (HR Inspection) -->
+    <div id="candidate-dossier-modal-overlay" class="modal-overlay">
+      <div class="modal-window" style="max-width: 860px;">
+        <div class="modal-header">
+          <div>
+            <h3 id="dossier-candidate-name" style="font-size: 1.35rem; font-weight: 800; color: var(--text-main);">Candidate Dossier</h3>
+            <p id="dossier-candidate-role" style="font-size: 0.85rem; color: var(--violet-primary); font-weight: 700;">Role Applicant Breakdown</p>
+          </div>
+          <button id="dossier-close-btn" class="close-btn" aria-label="Close modal">&times;</button>
+        </div>
+        <div id="candidate-dossier-body" class="modal-body">
+          <!-- Injected dossier details -->
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
