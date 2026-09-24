@@ -1,5 +1,6 @@
 import { INITIAL_STUDENTS, CURRENT_STUDENT_DEFAULT } from '../data/initialData.js';
 import { DEFAULT_ROLES } from '../data/roles.js';
+import { supabase } from '../services/supabaseClient.js';
 
 const STORAGE_KEYS = {
   CURRENT_USER: 'talentproof_current_user_v3',
@@ -79,7 +80,17 @@ class Store {
     return this.sessionUser;
   }
 
-  login(identifier, role = 'student', password = '') {
+  async login(identifier, role = 'student', password = '') {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: identifier.includes('@') ? identifier : `${identifier}@student.edu`,
+      password: password
+    });
+
+    if (error) {
+      alert(`Login failed: ${error.message}`);
+      return;
+    }
+
     const pool = this.getCandidates();
     const cleanId = (identifier || '').trim().toLowerCase();
     let user = pool.find(u => 
@@ -91,10 +102,10 @@ class Store {
       if (role === 'student') {
         user = {
           ...CURRENT_STUDENT_DEFAULT,
-          id: `stud-${Date.now()}`,
+          id: data.user?.id || `stud-${Date.now()}`,
           name: cleanId.includes('@') ? cleanId.split('@')[0].replace('.', ' ') : cleanId,
           username: cleanId.replace(/[^a-zA-Z0-9\s]/g, ''),
-          email: cleanId.includes('@') ? cleanId : `${cleanId}@student.edu`,
+          email: data.user?.email || identifier,
           password: password,
           userRole: 'student'
         };
@@ -102,10 +113,10 @@ class Store {
         localStorage.setItem(STORAGE_KEYS.CANDIDATE_POOL, JSON.stringify(pool));
       } else {
         user = {
-          id: `hr-${Date.now()}`,
+          id: data.user?.id || `hr-${Date.now()}`,
           name: cleanId.includes('@') ? cleanId.split('@')[0].replace('.', ' ') : cleanId,
           username: cleanId.replace(/[^a-zA-Z0-9\s]/g, ''),
-          email: cleanId.includes('@') ? cleanId : `${cleanId}@company.com`,
+          email: data.user?.email || identifier,
           password: password,
           userRole: 'hr',
           title: 'Senior Technical Recruiter'
@@ -116,7 +127,6 @@ class Store {
     }
 
     this.sessionUser = user;
-    // If student, go to instructions page first!
     if (role === 'student') {
       this.currentView = 'instructions';
     } else {
@@ -125,15 +135,33 @@ class Store {
     this.notify();
   }
 
-  register({ name, username, email, password, role, college, gradYear, company }) {
+  async register({ name, username, email, password, role, college, gradYear, company }) {
+    const signupEmail = email || `${username}@student.edu`;
+    
+    const { data, error } = await supabase.auth.signUp({
+      email: signupEmail,
+      password: password,
+      options: {
+        data: {
+          username: username,
+          role: role
+        }
+      }
+    });
+
+    if (error) {
+      alert(`Registration failed: ${error.message}`);
+      return;
+    }
+
     let newUser;
     if (role === 'student') {
       newUser = {
         ...CURRENT_STUDENT_DEFAULT,
-        id: `stud-${Date.now()}`,
+        id: data.user?.id || `stud-${Date.now()}`,
         name: name || username || 'Student Intern',
         username: username || (email ? email.split('@')[0] : 'student'),
-        email: email,
+        email: signupEmail,
         password: password,
         college: college || 'National Institute of Technology',
         gradYear: gradYear || 2026,
@@ -144,10 +172,10 @@ class Store {
       localStorage.setItem(STORAGE_KEYS.CANDIDATE_POOL, JSON.stringify(pool));
     } else {
       newUser = {
-        id: `hr-${Date.now()}`,
+        id: data.user?.id || `hr-${Date.now()}`,
         name: name || username || 'HR Recruiter',
         username: username || (email ? email.split('@')[0] : 'recruiter'),
-        email: email,
+        email: signupEmail,
         password: password,
         company: company || 'Enterprise Corp',
         title: 'Talent Acquisition Partner',

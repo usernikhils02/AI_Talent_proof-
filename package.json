@@ -12,6 +12,8 @@
     "vite": "^8.3.0"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.117.1",
     "canvas-confetti": "^1.9.4",
     "lucide": "^1.47.0"
   }

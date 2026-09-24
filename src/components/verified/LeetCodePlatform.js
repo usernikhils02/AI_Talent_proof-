@@ -1,5 +1,6 @@
 import { VERIFIED_LANGUAGES } from '../../data/verifiedBank.js';
 import { escapeHtml } from '../../utils/helpers.js';
+import { executeCodeInPiston } from '../../services/codeExecutionService.js';
 
 export function renderLeetCodePlatform(container, langId, levelNum, onSubmitSolution, onExit) {
   const langObj = VERIFIED_LANGUAGES.find(l => l.id === langId) || VERIFIED_LANGUAGES[0];
@@ -181,11 +182,37 @@ export function renderLeetCodePlatform(container, langId, levelNum, onSubmitSolu
       codeStore[currentProblemIdx] = codeArea.value;
     });
 
-    // Run Code
-    container.querySelector('#btn-run-code').addEventListener('click', () => {
+    // Run Code using Remote Piston API
+    container.querySelector('#btn-run-code').addEventListener('click', async () => {
       codeStore[currentProblemIdx] = codeArea.value;
-      consoleOutput = `Running Sample Test Case 1...\nInput: ${prob.sampleInput}\nExpected Output: ${prob.sampleOutput}\nCandidate Output: ${prob.sampleOutput}\nStatus: ACCEPTED (Runtime: 14ms | Memory: 16.2MB)\nAll sample assertions passed ✓`;
-      container.querySelector('#console-output-text').textContent = consoleOutput;
+      const btn = container.querySelector('#btn-run-code');
+      const consoleEl = container.querySelector('#console-output-text');
+      
+      btn.textContent = '⏳ Compiling...';
+      btn.disabled = true;
+      consoleEl.textContent = 'Sending code to secure remote sandbox...';
+
+      const executionResult = await executeCodeInPiston(codeArea.value, langId);
+      
+      btn.textContent = '▶ Run Code';
+      btn.disabled = false;
+
+      let formattedOutput = `Running Sample Test Case 1...\nInput: ${prob.sampleInput}\nExpected Output: ${prob.sampleOutput}\n`;
+      
+      if (executionResult.success) {
+        formattedOutput += `Candidate Output:\n${executionResult.output}\n`;
+        // Basic check if output contains the expected output (loose heuristic)
+        if (executionResult.output.trim().includes(prob.sampleOutput.trim())) {
+          formattedOutput += `Status: ACCEPTED (Runtime: ~${executionResult.time} | Memory: ~${executionResult.memory})\nAll sample assertions passed ✓`;
+        } else {
+          formattedOutput += `Status: WRONG ANSWER\nExpected ${prob.sampleOutput} but got different output.`;
+        }
+      } else {
+        formattedOutput += `Status: RUNTIME ERROR / COMPILATION FAILED\n${executionResult.output}`;
+      }
+
+      consoleOutput = formattedOutput;
+      consoleEl.textContent = consoleOutput;
     });
 
     // Submit Solution (evaluates test cases -> Score 100% -> Triggers Authenticity MCQ if > 85%)

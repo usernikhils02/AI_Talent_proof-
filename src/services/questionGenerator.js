@@ -5,7 +5,20 @@
  * architecture decisions, "why X over Y", and debugging/scaling challenges.
  */
 
-export function generateTechnicalQuestions({ roleTitle, roleId, repoMetadata, projectTitle, techStack }) {
+import { generateDynamicInterviewQuestions } from './aiService.js';
+
+export async function generateTechnicalQuestions({ roleTitle, roleId, repoMetadata, projectTitle, techStack }) {
+  // First, attempt to generate real AI questions using Gemini via LangChain/Prompt Guardrails!
+  try {
+    const aiQuestions = await generateDynamicInterviewQuestions(repoMetadata, roleTitle);
+    if (aiQuestions && Array.isArray(aiQuestions) && aiQuestions.length > 0) {
+      return aiQuestions;
+    }
+  } catch (error) {
+    console.error("AI Generation failed, falling back to heuristic engine", error);
+  }
+
+  // AI Fallback (Static Template Generator)
   const frameworks = repoMetadata.detectedFrameworks?.length 
     ? repoMetadata.detectedFrameworks 
     : (techStack?.length ? techStack : ['Modern Web Stack']);
